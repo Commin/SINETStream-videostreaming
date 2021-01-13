@@ -1,0 +1,11 @@
+video-kafka:
+    type: kafka
+    brokers: "broker:9092"
+    topic: video-kafka
+    value_type: image
+    
+ video-mqtt:
+    type: mqtt
+    brokers: "broker:1883"
+    topic: video-mqtt
+    value_type: text
