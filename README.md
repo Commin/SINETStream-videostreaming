@@ -18,23 +18,24 @@ Run the backend messaging systems (Kafka and MQTT) used by SINETStream in a Dock
 
 Execute the following command in the Broker's host environment.
 
-```
+```console
 [user00@host-broker]$ docker run -d --name broker --hostname broker \
                       -p 1883:1883 -p 9092:9092 sinetstream/tutorial:1.0.0
 ```
 
 Show the status to confirm that the container has started successfully.
 
-```
+```console
 [user00@host-broker]$ docker ps -l
 CONTAINER ID        IMAGE                        COMMAND                  CREATED              STATUS              PORTS                                            NAMES
 xxxxxxxxxxxx        sinetstream/tutorial:1.0.0   "/usr/local/bin/supe…"   About a minute ago   Up About a minute   0.0.0.0:1883->1883/tcp, 0.0.0.0:9092->9092/tcp   broker
 ```
+
 #### 2.1.2. Add to hosts file
 
 Add IP of `broker` to `/etc/hosts` of `reader` and `writer`.
 
-```
+```console
 sudo vim /etc/hosts
 
 [broker-ip] broker
@@ -44,7 +45,7 @@ sudo vim /etc/hosts
 
 Install the Python3 library of SINETStream on your environment of `Reader` and `Writer`.
 
-```
+```console
 pip3 install sinetstream-kafka sinetstream-mqtt
 pip3 install sinetstream-type-image
 ```
@@ -61,27 +62,28 @@ Below is the procedure.
 
 Create a directory and change to that directory.
 
-```
+```console
 [user01@reader]$ mkdir -p ~/sinetstream/reader
 [user01@reader]$ cd ~/sinetstream/reader
 ```
 
 Prepare SINETStream configuration file. Download the configuration file prepared for this tutorial from GitHub.
-```
-ss_url=https://github.com/Commin/SINETStream-videostreaming
+
+```console
+[user01@reader]$ss_url=https://github.com/Commin/SINETStream-videostreaming
 [user01@reader]$ curl -O ${ss_url}/reader/.sinetstream_config.yml
 ```
 
 Download the sample program of Reader that uses the SINETStream Python3 API from GitHub. Grant execute permission to the program.
 
-```
+```console
 [user01@reader]$ curl -O ${ss_url}/reader/video_consumer.py
 [user01@reader]$ chmod a+x video_consumer.py
 ```
 
 Verify that the above procedure has been performed correctly. Make sure that the directories and files are the same as in the example below.
 
-```
+```console
 [user01@reader]$ pwd
 /home/user01/sinetstream/reader
 [user01@reader]$ ls -a
@@ -98,27 +100,28 @@ Below is the procedure.
 
 Create a directory and change to that directory.
 
-```
+```console
 [user01@writer]$ mkdir -p ~/sinetstream/writer
 [user01@writer]$ cd ~/sinetstream/writer
 ```
 
 Prepare SINETStream configuration file. Download the configuration file prepared for this tutorial from GitHub.
-```
-ss_url=https://github.com/Commin/SINETStream-videostreaming
+
+```console
+[user01@writer]$ss_url=https://github.com/Commin/SINETStream-videostreaming
 [user01@writer]$ curl -O ${ss_url}/writer/.sinetstream_config.yml
 ```
 
 Download the sample program of Reader that uses the SINETStream Python3 API from GitHub. Grant execute permission to the program.
 
-```
+```console
 [user01@writer]$ curl -O ${ss_url}/writer/video_producer.py
 [user01@writer]$ chmod a+x video_producer.py
 ```
 
 Verify that the above procedure has been performed correctly. Make sure that the directories and files are the same as in the example below.
 
-```
+```console
 [user01@writer]$ pwd
 /home/user01/sinetstream/writer
 [user01@writer]$ ls -a
@@ -129,7 +132,7 @@ Verify that the above procedure has been performed correctly. Make sure that the
 
 In the terminal for `Reader`:
 
-```
+```console
 python3 video_consumer.py -s video-kafka
 ```
 
@@ -137,7 +140,7 @@ python3 video_consumer.py -s video-kafka
 
 In the terminal for `Writer`:
 
-```
+```console
 python3 video_producer.py -s video-kafka -c 0 -p
 ```
 
