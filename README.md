@@ -1,5 +1,7 @@
 # Video streaming with SINETStream (Kafka)
 
+[SINETStream](https://github.com/nii-gakunin-cloud/sinetstream/blob/main/README.en.md) Github websit: https://github.com/nii-gakunin-cloud/sinetstream
+
 ## 1. Roles
 
 * `Writer`: Jeston TX2.
