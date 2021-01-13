@@ -8,4 +8,4 @@ video-kafka:
     type: mqtt
     brokers: "broker:1883"
     topic: video-mqtt
-    value_type: text
+    value_type: image
