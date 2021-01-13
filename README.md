@@ -70,7 +70,7 @@ Create a directory and change to that directory.
 Prepare SINETStream configuration file. Download the configuration file prepared for this tutorial from GitHub.
 
 ```console
-[user01@reader]$ss_url=https://github.com/Commin/SINETStream-videostreaming
+[user01@reader]$ ss_url=https://github.com/Commin/SINETStream-videostreaming
 [user01@reader]$ curl -O ${ss_url}/reader/.sinetstream_config.yml
 ```
 
@@ -108,7 +108,7 @@ Create a directory and change to that directory.
 Prepare SINETStream configuration file. Download the configuration file prepared for this tutorial from GitHub.
 
 ```console
-[user01@writer]$ss_url=https://github.com/Commin/SINETStream-videostreaming
+[user01@writer]$ ss_url=https://github.com/Commin/SINETStream-videostreaming
 [user01@writer]$ curl -O ${ss_url}/writer/.sinetstream_config.yml
 ```
 
