@@ -131,7 +131,7 @@ In the terminal for `Reader`:
 python3 video_consumer.py -s video-kafka
 ```
 
-`-s` service name
+* `-s` service name
 
 In the terminal for `Writer`:
 
@@ -139,9 +139,9 @@ In the terminal for `Writer`:
 python3 video_producer.py -s video-kafka -c 0 -p
 ```
 
-`-s` service name (same as `Reader` program)
-`-c` webcam source id (usually 0)
-`-p` show preview locally (optional)
-`--width` resize video width (default value: 320)
-`--height` resize video height (default value: 240)
-`--fps` set video frame rate (default value: 30)
+* `-s` service name (same as `Reader` program)
+* `-c` webcam source id (usually 0)
+* `-p` show preview locally (optional)
+* `--width` resize video width (default value: 320)
+* `--height` resize video height (default value: 240)
+* `--fps` set video frame rate (default value: 30)
