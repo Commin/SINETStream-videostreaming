@@ -28,17 +28,14 @@ from sinetstream import MessageWriter
 
 logging.basicConfig(level=logging.INFO)
 
-def producer(service, video, width, height, preview=False):
+def producer(service, video, preview=False):
     with MessageWriter(service, value_type='image') as writer:
         image = next_frame(video)
         print(image.shape)
-        dim = (width, height)
         
         while image is not None:
 
-            resized = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
-            print('Resized Dimensions : ',resized.shape)
-            writer.publish(resized)
+            writer.publish(image)
 
             if preview and show_preview(image):
                 break
@@ -115,16 +112,16 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print(": service="+ args.service)
+    pipeline = None
     if args.input_video != None:
         print(": input-video="+ args.input_video)
     else:
-        print(gstreamer_pipeline(flip_method=0))
+        pipeline = gstreamer_pipeline(capture_width=args.width, capture_height=args.height, framerate=args.fps,
+         flip_method=0, display_width=args.width, display_height=args.height)
+        print(pipeline)
     if args.preview:
         print("Hit 'q' to stop")
 
-    cap = cv2.VideoCapture(args.input_video) if args.input_video!=None else cv2.VideoCapture(gstreamer_pipeline(flip_method=0), cv2.CAP_GSTREAMER)
+    cap = cv2.VideoCapture(args.input_video) if args.input_video!=None else cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
 
-    #cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
-    #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
-    #cap.set(cv2.CAP_PROP_FPS, args.fps)  
-    main(args.service, cap, args.width, args.height, args.preview)
+    main(args.service, cap, args.preview)
