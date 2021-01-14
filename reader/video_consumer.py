@@ -36,16 +36,6 @@ def consumer(service):
             if show_image(message):
                 sys.exit()
 
-
-#def show_image(message):
-#    window_name = message.topic
-#    image = message.value
-#    print(image.shape)
-#    imshow(window_name, image)
-#
-#    # Hit 'q' to stop
-#   return waitKey(25) & 0xFF == ord("q")
-
 def show_image(message):
     global n_frame
     window_name = message.topic
@@ -57,14 +47,10 @@ def show_image(message):
     imshow(window_name, image)
     return waitKey(25) & 0xFF == ord("q")
 
-def show():
-    pass
-
 if __name__ == '__main__':
     global n_frame
     parser = ArgumentParser(description="SINETStream Consumer")
-    parser.add_argument(
-        "-s", "--service", metavar="SERVICE_NAME", required=True)
+    parser.add_argument("-s", "--service", metavar="SERVICE_NAME", required=True)
     args = parser.parse_args()
 
     print(f": service={args.service}")
