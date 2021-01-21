@@ -30,13 +30,13 @@ from sinetstream import MessageReader
 
 logging.basicConfig(level=logging.INFO)
 
-def consumer(service):
+def consumer(service,width,height):
     with MessageReader(service, value_type='image') as reader:
         for message in reader:
-            if show_image(message):
+            if show_image(message,width,height):
                 sys.exit()
 
-def show_image(message):
+def show_image(message,width,height):
     global n_frame
     window_name = message.topic
     print("topic={message.topic} value='{message.value}'")
@@ -44,18 +44,21 @@ def show_image(message):
     n_frame = n_frame +1
     print(image.shape, f"frame: {n_frame}")
     #cv2.imwrite("./image.jpg", image)
-    imshow(window_name, image)
+    resized_img = cv2.resize(image,(width,height))
+    imshow(window_name, resized_img)
     return waitKey(25) & 0xFF == ord("q")
 
 if __name__ == '__main__':
     global n_frame
     parser = ArgumentParser(description="SINETStream Consumer")
     parser.add_argument("-s", "--service", metavar="SERVICE_NAME", required=True)
+    parser.add_argument("--width", type=int, default=320, help="resize width")
+    parser.add_argument("--height", type=int, default=240, help="resize height")
     args = parser.parse_args()
 
     print(f": service={args.service}")
     n_frame = 0
     try:
-        consumer(args.service)
+        consumer(args.service,args.width,args.height)
     except KeyboardInterrupt:
         sys.exit()
