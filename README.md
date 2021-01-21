@@ -4,7 +4,7 @@
 
 ## 1. Introduction
 
-* `Writer`: Jeston TX2.
+* `Writer`: Jeston TX2, Raspberry Pi.
 * `Reader`: MacOS.
 * `Broker`: docker container on MacOS or other device.
 
@@ -189,6 +189,7 @@ python3 video_consumer.py -s video-kafka
 
 * `-s` service name
 
+For Jestson TX2, you can run `video_producer.py`.
 In the terminal for `Writer`:
 
 ```console
@@ -197,6 +198,19 @@ python3 video_producer.py -s video-kafka -c 0 -p
 
 * `-s` service name (same as `Reader` program)
 * `-c` webcam source id (usually 0)
+* `-p` show preview locally (optional)
+* `--width` resize video width (default value: 320)
+* `--height` resize video height (default value: 240)
+* `--fps` set video frame rate (default value: 30)
+
+For Raspberry Pi, you can run `rasp_video_producer.py`.
+In the terminal for `Writer`:
+
+```console
+python3 rasp_video_producer.py -s video-kafka
+```
+
+* `-s` service name (same as `Reader` program)
 * `-p` show preview locally (optional)
 * `--width` resize video width (default value: 320)
 * `--height` resize video height (default value: 240)
