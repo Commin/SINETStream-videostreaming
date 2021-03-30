@@ -1,11 +1,35 @@
-video-kafka:
+cloud-video-kafka:
     type: kafka
     brokers: "broker:9092"
     topic: video-kafka
     value_type: image
     
- video-mqtt:
+edge-video-kafka:
+    type: kafka
+    brokers: "edge-broker:9092"
+    topic: video-kafka
+    value_type: image
+    
+cloud-video-mqtt:
     type: mqtt
     brokers: "broker:1883"
     topic: video-mqtt
     value_type: image
+
+edge-video-mqtt:
+    type: mqtt
+    brokers: "edge-broker:1883"
+    topic: video-mqtt
+    value_type: image
+ 
+service-tutorial-kafka:
+    type: kafka
+    brokers: "broker:9092"
+    topic: topic-tutorial-kafka
+    value_type: text
+
+service-tutorial-mqtt:
+    type: mqtt
+    brokers: "broker:1883"
+    topic: topic-tutorial-mqtt
+    value_type: text
