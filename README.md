@@ -1,6 +1,7 @@
 # Video streaming with SINETStream (Kafka)
 
-[SINETStream](https://github.com/nii-gakunin-cloud/sinetstream/blob/main/README.en.md) Github websit: https://github.com/nii-gakunin-cloud/sinetstream
+[SINETStream](https://github.com/nii-gakunin-cloud/sinetstream/blob/main/README.en.md) Github websit: https://github.com/nii-gakunin-cloud/sinetstream.
+
 [Testing tutorial](https://github.com/Commin/SINETStream-videostreaming/blob/main/testing_tutorial.md): video streaming from Raspberry Pi to edge & cloud server with SINETStream combined with [EdgeVPN](https://edgevpn.io/).
 
 ## 1. Introduction
