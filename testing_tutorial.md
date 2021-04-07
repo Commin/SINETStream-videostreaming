@@ -1,9 +1,10 @@
-# Video streaming with SINETStream
+# Video streaming testing tutorial combined with EdgeVPN
 
 ## 1. Install and start EdgeVPN.
 
-Install `evio` and start EdgeVPN all on Raspberry Pi, edge device (arbitrary device can run EdgeVPN closer to Raspberry Pi), and Cloud VM.
+Install `evio` and start [EdgeVPN](https://edgevpn.io/install/) all on Raspberry Pi, edge device (arbitrary device can run EdgeVPN closer to Raspberry Pi), and Cloud VM.
 For transmission delay measure, no need noise removal on cloud. AWS EC2 t2. series is enough.
+
 
 
 ## 2. Prepare Python environment and dependencies. 
@@ -243,6 +244,7 @@ sudo python3 exp_rasp_video_producer.py -s edge-video-kafka --width 854 --height
 sudo python3 exp_rasp_video_producer.py -s edge-video-kafka --width 854 --height 480 --fps 20 --csv ./csv/rasp_edge_cloud_rasp_480p_20fps.csv --frame 100
 ```
 
-Finally, list all data from .csv file and calculate average latency for all conditions.
+For the first & second routes, please edit `--csv` parameters correspondingly.
+Particularly, for the second route: Rasp -  Cloud - Rasp, please edit `-s` parameter to `cloud-video-kafka`.
 
-
+Finally, list all data from .csv file and calculate average latency (RTT) for all conditions.
