@@ -123,6 +123,8 @@ Verify that the above procedure has been performed correctly. Make sure that the
 
 ### Add service to configure file.
 
+Please ignore this part, if configure file includes the service information.
+
 Here is `edge-video-kafka` information:
 ```
 edge-video-kafka:
