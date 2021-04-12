@@ -66,7 +66,7 @@ Verify that the above procedure has been performed correctly. Make sure that the
 [user01@reader]$ pwd
 /home/user01/sinetstream/reader
 [user01@reader]$ ls -a
-.  ..  .sinetstream_config.yml  video_consumer.py 
+.  ..  .sinetstream_config.yml consumer.py video_consumer.py 
 ```
 
 #### On edge terminal
@@ -118,7 +118,7 @@ Verify that the above procedure has been performed correctly. Make sure that the
 [user01@writer]$ pwd
 /home/user01/sinetstream/writer
 [user01@writer]$ ls -a
-.  ..  .sinetstream_config.yml  video_producer.py
+.  ..  .sinetstream_config.yml producer.py video_producer.py 
 ```
 
 ### Add service to configure file.
