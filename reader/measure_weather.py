@@ -168,8 +168,8 @@ if __name__ == '__main__':
 
     parser.add_argument('-data_path', help='directory for input image', default='./U080-000001.png',  type=str)
     parser.add_argument('-times', help='measure times', default=100,  type=int)
-    parser.add_argument("-w", "--width", type=int, default=320, help="resize width")
-    parser.add_argument("-h","--height", type=int, default=240, help="resize height")
+    parser.add_argument("--width", type=int, default=320, help="resize width")
+    parser.add_argument("--height", type=int, default=240, help="resize height")
 
     args = parser.parse_args()
     image_dir= args.data_path
