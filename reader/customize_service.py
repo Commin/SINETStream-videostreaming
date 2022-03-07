@@ -7,7 +7,10 @@ from PIL import Image
 import sys
 import json
 import argparse
-import cv2
+import time
+import csv
+from datetime import datetime
+from statistics import mean
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -124,14 +127,15 @@ def softmax(x):
 
     return x
 
-def classify(image):
+def classify(img,ts):
     model = torch.load(os.path.join(code_url, "result.pickle"), map_location=device)
     model.to(device)
     transform = transforms_imagenet(img_size=380)
     model.eval()
     num_classes = len(labels_dict)
     labels = labels_dict
-    img = Image.fromarray(cv2.cvtColor(image,cv2.COLOR_BGR2RGB))
+    #print(labels_dict)
+    # img = Image.fromarray(cv2.cvtColor(image,cv2.COLOR_BGR2RGB))
     img = transform(img)
     img = torch.unsqueeze(img, 0)
     img = img.to(device)
@@ -143,60 +147,56 @@ def classify(image):
     img = np.array(img[0])
     end_idx = -6 if num_classes >= 5 else -num_classes - 1
     top_k = img.argsort()[-1:end_idx:-1]
+    label = labels[top_k[0]]
+    res_dict = {"timestamp":ts, "predicted_label" :label}
+    print(res_dict)
+    detail_dict = {}
+    for idx in top_k:
+        detail_dict[labels[idx]] = float(img[idx])
+    # print(detail_dict)
+    res_dict.update(detail_dict)
+    json_object = json.dumps(res_dict, indent = 4) 
+    #print(json_object)
     str = "predicted_label:",labels[top_k[0]],"scores:",[[labels[idx], float(img[idx])] for idx in top_k]
-    print(str)
-    return str
+    #print(str)
+    return label, str
 
 if __name__ == '__main__':
     #image_dir= './images/U080-000001.png'
     # --- Parse hyper-parameters  --- #
     parser = argparse.ArgumentParser(description='Hyper-parameters for GridDehazeNet')
 
-    parser.add_argument('-data_path', help='directory for input image', default='./images/U080-000001.png',  type=str)
+    parser.add_argument('-data_path', help='directory for input image', default='./U080-000001.png',  type=str)
+    parser.add_argument('-times', help='measure times', default=100,  type=int)
+    parser.add_argument("-w", "--width", type=int, default=320, help="resize width")
+    parser.add_argument("-h","--height", type=int, default=240, help="resize height")
 
     args = parser.parse_args()
     image_dir= args.data_path
-
-    model = torch.load(os.path.join(code_url, "result.pickle"), map_location=device)
-    model.to(device)
-    transform = transforms_imagenet(img_size=380)
-    model.eval()
-    num_classes = len(labels_dict)
-    labels = labels_dict
-
+    times = args.times
     img = Image.open(image_dir)
-    img = transform(img)
-    img = torch.unsqueeze(img, 0)
-    img = img.to(device)
+    img = img.resize(((args.width,args.height)))
+    print("size", img.size)
 
-    #def _preprocess(self, data):
-    #    data_list = []
-    #    for _, v in data.items():
-    #        for _, file_content in v.items():
-    #            img = Image.open(file_content)
-    #            img = self.transform(img)
-    #            img = torch.unsqueeze(img, 0)
-    #            img = img.to(device)
-    #            data_list.append(img)
-    #    return data_list
-
-    with torch.no_grad():
-        img = model(img)
-
-    img = img.to(torch.device('cpu')).detach().numpy()
-    img = softmax(np.array(img))
-    img = np.array(img[0])
-    end_idx = -6 if num_classes >= 5 else -num_classes - 1
-    top_k = img.argsort()[-1:end_idx:-1]
-    print("predicted_label:",labels[top_k[0]],"scores:",[[labels[idx], float(img[idx])] for idx in top_k])
-
-
-
-
-
-
-
-
-
-
-
+    ts = datetime.now()
+    
+    csvfile_name = "weather_time_" + str(args.width) + "x" + str(args.height) + ts.strftime("_%Y/%m/%d_%H:%M:%S") + ".csv"
+    csvfile_name = csvfile_name.replace("/","")
+    csvfile_name = csvfile_name.replace(":","")
+    with open(csvfile_name, 'w', newline='') as csvfile:
+        fieldnames = ['frame', 'time']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for i in range(times):
+            time_list = []
+            wc_time = time.time()
+            classify(img,str(i))
+            wc_time = time.time()-wc_time
+            time_list.append(wc_time)
+            print('frame' + str(i) + 'time' + str(wc_time))
+            writer.writerow({'frame': str(i), 'time': str(wc_time)})
+            if i+1 == times:
+                avg = mean(time_list)
+                print("average time", avg)
+                writer.writerow({'frame': "average", 'time': str(avg)})
+    print("Saved", csvfile_name)
