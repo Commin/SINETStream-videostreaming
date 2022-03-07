@@ -1,69 +1,112 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2020 National Institute of Informatics
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-import logging
 from argparse import ArgumentParser
-from customize_service import classify
-import sys
-from cv2 import imshow, waitKey, resize
+import cv2
+import numpy as np
+from PIL import Image
 from sinetstream import MessageReader
+from sinetstream import MessageWriter
+from multiprocessing import Process, Queue, freeze_support
+from queue import Empty
+from datetime import datetime
+from customize_service import classify
+from logging import getLogger
 
+import csv
+import time
 
-logging.basicConfig(level=logging.INFO)
-
-def consumer(service,width,height,interval):
-    with MessageReader(service, value_type='image') as reader:
-        for message in reader:
-            if show_image(message,width,height,interval):
-                sys.exit()
-
-def show_image(message,width,height,interval):
-    global n_frame
-    #window_name = message.topic
-    print("topic={message.topic} value='{message.value}'")
-    image = message.value
-    if n_frame % interval == 0:
-        classify(image)
-
-    n_frame = n_frame +1
-    print(image.shape, f"frame: {n_frame}")
-    
-    #cv2.imwrite("./image.jpg", image)
-    #resized_img = resize(image,(width,height))
-    
-    #imshow(window_name, resized_img)
-    return waitKey(25) & 0xFF == ord("q")
-
-if __name__ == '__main__':
-    global n_frame
+def arg_parse():
     parser = ArgumentParser(description="SINETStream Consumer")
-    parser.add_argument("-s", "--service", metavar="SERVICE_NAME", required=True)
+    parser.add_argument("-ss", "--subservice",  metavar="SERVICE_NAME", default="cloud-video-kafka")
+    parser.add_argument("-ws", "--weaservice", default="weather-kafka")
     parser.add_argument("--width", type=int, default=320, help="resize width")
     parser.add_argument("--height", type=int, default=240, help="resize height")
     parser.add_argument("--interval", type=int, default=10, help="classify weather per which frames")
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    print(f": service={args.service}")
-    n_frame = 0
-    try:
-        consumer(args.service, args.width, args.height, args.interval)
-    except KeyboardInterrupt:
-        sys.exit()
+logger = getLogger(__name__)
+
+video_que = Queue(1)
+res_que = Queue(1)
+weather_que = Queue(1)
+
+def consumer(v, w, sub_service, interval):
+    frame = 0
+    with MessageReader(sub_service,value_type='image') as reader:
+        reader.seek_to_end()
+        for msg in reader:
+            #print("topic={msg.topic} value='{msg.value}'")
+            v.put(msg)
+            if frame % interval == 0:
+                w.put(msg)
+            frame += 1
+
+
+def producer(v, r):
+    frame = 0
+    pub_service = "sunny-video-kafka"
+    while True:
+        with MessageWriter(pub_service,value_type='image') as writer:
+            print("service={pub_service}\n")
+            while True:
+                try:
+                    video = v.get(True,0.1).value
+                    writer.publish(video)
+                    frame += 1
+                    print('Published %d frames' % (frame))
+                    res = r.get(True,0.1)
+                    if res not in pub_service:
+                        pub_service = res + "-video-kafka"
+                        break
+                except Empty:
+                    pass
+                cv2.waitKey(1)
+
+
+def classifier(r, wea_service):
+    frame = 0
+    with MessageWriter(wea_service,value_type='text') as writer:
+        while True:
+            try:
+                msg = r.get(True,0.1)
+                print(msg)
+                print(type(msg))
+                writer.publish(msg)
+                
+                print('Published %d frames' % (frame))
+                frame += 1
+            except Empty:
+                pass
+            cv2.waitKey(1)
+
+def classify_frame(sub_que, res_que):
+    frame = 0
+
+    while True:
+        try:
+            msg = sub_que.get(True, 0.1)
+            ts = datetime.fromtimestamp(msg.timestamp)            
+            image = msg.value
+            img = Image.fromarray(cv2.cvtColor(image,cv2.COLOR_BGR2RGB))
+            label, res = classify(img,ts.strftime("%Y/%m/%d, %H:%M:%S"))
+            frame += 1
+            if label == "night":
+                label = "sunny"
+            res_que.put(label)
+        except Empty:
+            pass
+        except Exception:
+            logger.exception(
+                f"{msg.topic}(offset={msg.raw.offset}): Incorrect format")
+        cv2.waitKey(1)
+
+
+
+if __name__ == '__main__':
+    args = arg_parse()
+    
+    freeze_support()
+    Process(target=consumer, args=(video_que, weather_que, args.subservice, args.interval), daemon=True).start()
+    Process(target=classifier, args=(res_que, args.weaservice), daemon= True).start()
+    Process(target=producer, args=(video_que, res_que), daemon= True).start()
+    classify_frame(weather_que, res_que)
+    
+    
